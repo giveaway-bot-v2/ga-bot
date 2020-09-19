@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "scripts": {
+    "start": "node ."
+  },
+  "dependencies": {
+    "discord.js": "12.3.1"
+  }
+}
