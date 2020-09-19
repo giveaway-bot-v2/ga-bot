@@ -7,6 +7,17 @@ client.on('ready', () => {
     
     // List servers the bot is serving in
     console.log("Serving in: " + client.guilds.cache.size)
+    
+    // Setting activity and presence of bot on startup
+    client.user.setActivity("24/7 Giveaways!", {type: "WATCHING"})
+    
+    client.user.setPresence({
+    status: 'online',
+    activity: {
+        name: '24/7 Giveaways!',
+        type: 'WATCHING',
+    }
+})
 })
 
 
