@@ -1,8 +1,11 @@
 import { Client } from 'discord.js';
 import type { Interaction } from 'discord.js';
 import CommandManager from './CommandManager';
+import Database from '../database';
 
 export default class Bot extends Client {
+  db: Database;
+
   commands: CommandManager;
 
   constructor() {
@@ -13,6 +16,7 @@ export default class Bot extends Client {
       intents: ['GUILDS'],
     });
 
+    this.db = new Database();
     this.commands = new CommandManager('./commands');
 
     // Register events
