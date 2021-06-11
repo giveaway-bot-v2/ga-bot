@@ -1,6 +1,6 @@
-import type { Client } from 'pg';
-
 import Table from './Table';
+
+import type { PoolClient } from 'pg';
 
 export interface Key {
   id: number;
@@ -12,7 +12,7 @@ export interface Key {
  * The PostgreSQL keys table
  */
 export default class KeyTable extends Table {
-  async init(connection?: Client): Promise<void> {
+  async init(connection?: PoolClient): Promise<void> {
     await (connection || this.database).query(`
       CREATE TABLE keys (
         id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -29,7 +29,7 @@ export default class KeyTable extends Table {
    * @param connection The connection to use, defaults to a new connection from the pool
    * @returns The new key inserted into the table
    */
-  async new(value: string, connection?: Client): Promise<Key> {
+  async new(value: string, connection?: PoolClient): Promise<Key> {
     const res = await (connection || this.database).query({
       name: 'KeyTable_new',
       text:'INSERT INTO keys (value) VALUES ($1) RETURNING *;',
@@ -44,7 +44,7 @@ export default class KeyTable extends Table {
    * @param connection The connection to use, defaults to a new connection from the pool
    * @returns The key by the specified id
    */
-  async get(id: number, connection?: Client): Promise<Key | null> {
+  async get(id: number, connection?: PoolClient): Promise<Key | null> {
     const res = await (connection || this.database).query({
       name: 'KeyTable_get',
       text: 'SELECT * FROM keys WHERE id = $1 LIMIT 1;',
@@ -58,7 +58,7 @@ export default class KeyTable extends Table {
    * @param connection The connection to use, defaults to a new connection from the pool
    * @returns A random key that is not already claimed
    */
-  async getClaimable(connection?: Client): Promise<Key | null> {
+  async getClaimable(connection?: PoolClient): Promise<Key | null> {
     const res = await (connection || this.database).query({
       name: 'KeyTable_getClaimable',
       text: 'SELECT * FROM keys WHERE claimed = FALSE ORDER BY RANDOM() LIMIT 1;',

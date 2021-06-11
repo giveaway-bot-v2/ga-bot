@@ -1,4 +1,4 @@
-import type { Client } from 'pg';
+import type { PoolClient } from 'pg';
 
 import type Database from '.';
 
@@ -16,5 +16,5 @@ export default abstract class Table {
    * Initialize the Keys table in PostgreSQL
    * @param connection The connection to use, defaults to a new connection from the pool
    */
-  abstract init(connection?: Client): void;
+  abstract init(connection?: PoolClient): void;
 }

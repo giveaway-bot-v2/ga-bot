@@ -18,6 +18,8 @@ export default class Database extends Pool {
    * Initialize the database schema
    */
   async init(): Promise<void> {
-    await this.keys.init();
+    const conn = await this.connect();
+
+    await this.keys.init(conn);
   }
 }
