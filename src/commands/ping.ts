@@ -1,5 +1,6 @@
-import type { PermissionString, CommandInteraction } from "discord.js";
 import Command from ".";
+
+import type { PermissionString, CommandInteraction } from "discord.js";
 
 export default class PingCommand extends Command {
   name = 'ping';
