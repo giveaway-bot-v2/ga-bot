@@ -1,7 +1,49 @@
-import { Client } from 'discord.js';
+import path from 'path';
+import { promises as fs } from 'fs';  // Use the promises version of the fs API
+
+import { Collection, Client } from 'discord.js';
+
+import Command from './commands';
+import Database from './database';
+
 import type { Interaction } from 'discord.js';
-import CommandManager from './CommandManager';
-import Database from '../database';
+
+/**
+ * A collection of commands
+ */
+class CommandManager extends Collection<string, Command> {
+
+  /**
+   * @param dir An optional path to a directory with commands
+   */
+  constructor(dir?: string) {
+    super();
+    if (dir) this.loadDir(dir);
+  }
+
+  /**
+   * Recursively import and load all commands in the specified directory
+   * @param dir The relative directory to scan for commands
+   */
+  async loadDir(dir: string): Promise<void> {
+    const resolved = path.resolve(__dirname, dir);
+
+    for (const item of await fs.readdir(resolved, { withFileTypes: true })) {
+      if (item.isDirectory()) await this.loadDir(resolved + item.name);
+
+      // If we want a file to be ignored we can prefix it with _
+      if (!item.name.startsWith('_') && item.name.endsWith('.js')) {
+        const command: Command = new (await import(path.join(resolved, item.name))).default;
+
+        // Even though command has been typed to a Command instance, this provides runtime safety.
+        // The second condition makes sure that our abstract Command baseclass doesn't go through.
+        if (command instanceof Command && command.name != '') {
+          this.set(command.name, command);
+        }
+      }
+    }
+  }
+}
 
 export default class Bot extends Client {
   db: Database;
@@ -34,13 +76,17 @@ export default class Bot extends Client {
     }
 
     for (const command of this.commands.values()) {
+      // For testing (global commands can take an hour to register):
+      // this.guilds.cache.get('GUILD_ID')?.commands.create(command);
+
+      // For production
       this.application.commands.create(command);
     }
   }
 
   /**
    * Safely handle an interaction and execute any triggered slash commands.
-   * @param interaction The interaction that was sent from Discord
+   * @param interaction The interaction that was sent from Discord.
    */
   async handleCommands(interaction: Interaction): Promise<void> {
     if (!interaction.isCommand()) return;
