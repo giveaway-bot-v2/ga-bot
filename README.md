@@ -10,11 +10,8 @@ Using NPM simply run `npm install`.
 
 ### 2. Configuration
 
-Create a file with the name `.env` and fill out the following details:
-
-```env
-token=  # Discord bot token
-```
+Duplicate the `template.env` file and name it `env`. Read the comments in
+the file for help on how to fill it in.
 
 ### 3. Build and run
 
