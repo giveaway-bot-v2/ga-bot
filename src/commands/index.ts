@@ -42,9 +42,14 @@ export default abstract class Command implements ApplicationCommandData {
    */
   authorPermissions?: Array<PermissionString>;
 
-  ignoreGuilds = false;
-  ignoreNews = false;
-  ignoreDMs = false;
+  /**
+   * Whether this command should only work in DMs.
+   */
+  DMOnly = false;
+  /**
+   * Whether this command should only work in guilds.
+   */
+  guildOnly = false;
 
   /**
    * Run all command checks to see if the command can be executed
@@ -56,13 +61,8 @@ export default abstract class Command implements ApplicationCommandData {
     // The latter condition is to infer the type of CommandInteraction.channel
     if (interaction.guild && interaction.channel instanceof GuildChannel) {
   
-      if (this.ignoreGuilds) {
-        await interaction.reply('This command is unavailable in guild channels!');
-        return false;
-      }
-  
-      if (this.ignoreNews && interaction.channel.type === 'news') {
-        await interaction.reply('This command is unavailable in news channels!');
+      if (this.DMOnly) {
+        await interaction.reply('This command should only be used in DMs!');
         return false;
       }
 
@@ -91,7 +91,7 @@ export default abstract class Command implements ApplicationCommandData {
       } else {
       // We're in a DM
   
-      if (this.ignoreDMs) {
+      if (this.guildOnly) {
         await interaction.reply('This command is unavailable in DMs!');
         return false;
       }
