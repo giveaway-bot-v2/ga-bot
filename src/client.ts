@@ -30,16 +30,14 @@ class CommandManager extends Collection<string, Command> {
 
     for (const item of await fs.readdir(resolved, { withFileTypes: true })) {
       if (item.isDirectory()) await this.loadDir(resolved + item.name);
+      if (item.name.startsWith('_') || !item.name.endsWith('.js')) continue;
 
-      // If we want a file to be ignored we can prefix it with _
-      if (!item.name.startsWith('_') && item.name.endsWith('.js')) {
-        const command: Command = new (await import(path.join(resolved, item.name))).default;
+      const command: Command = new (await import(path.join(resolved, item.name))).default;
 
-        // Even though command has been typed to a Command instance, this provides runtime safety.
-        // The second condition makes sure that our abstract Command baseclass doesn't go through.
-        if (command instanceof Command && command.name != '') {
-          this.set(command.name, command);
-        }
+      // Even though command has been typed to a Command instance, this provides runtime safety.
+      // The second condition makes sure that our abstract Command baseclass doesn't go through.
+      if (command instanceof Command && command.name != '') {
+        this.set(command.name, command);
       }
     }
   }
