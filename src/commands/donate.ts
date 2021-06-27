@@ -15,15 +15,23 @@ export default class DonateCommand extends Command {
       name: 'keys',
       description: 'Space separated Steam key(s) you would like to donate',
       required: true,
-    }
+    },
+    {
+      type: 'STRING' as const,
+      name: 'message',
+      description: 'An optional message you would like to attach to the key',
+      required: false,
+    },
   ];
 
   async run(interaction: CommandInteraction): Promise<void> {
     const conn = await interaction.client.db.connect();  // Use a shared connection
 
+    const msg = interaction.options.get('message')?.value as string | null;
+
     const keys: Array<Key> = [];
-    for (const keyArg of (<string>interaction.options.get('keys')?.value).split(' ')) {
-      keys.push(await interaction.client.db.keys.new(keyArg, conn));
+    for (const keyArg of (interaction.options.get('keys')?.value as string).split(' ')) {
+      keys.push(await interaction.client.db.keys.new(keyArg, msg, conn));
     }
 
     await interaction.reply(

@@ -5,6 +5,7 @@ import type { PoolClient } from 'pg';
 export interface Key {
   id: number;
   value: string;
+  message: string;
   claimed: boolean;
 }
 
@@ -17,6 +18,7 @@ export default class KeyTable extends Table {
       CREATE TABLE keys (
         id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
         value TEXT UNIQUE NOT NULL,
+        message VARCHAR(128),
         claimed BOOLEAN NOT NULL DEFAULT FALSE
       );
       CREATE INDEX claimable_keys_idx ON keys (claimed);
@@ -29,11 +31,11 @@ export default class KeyTable extends Table {
    * @param connection The connection to use, defaults to a new connection from the pool
    * @returns The new key inserted into the table
    */
-  async new(value: string, connection?: PoolClient): Promise<Key> {
+  async new(value: string, message?: string | null, connection?: PoolClient): Promise<Key> {
     const res = await (connection || this.database).query({
       name: 'KeyTable_new',
-      text:'INSERT INTO keys (value) VALUES ($1) RETURNING *;',
-      values: [value],
+      text:'INSERT INTO keys (value, message) VALUES ($1, $2) RETURNING *;',
+      values: [value, message],
     });
     return res.rows[0] as Key;
   }
