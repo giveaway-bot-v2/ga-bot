@@ -105,3 +105,15 @@ export default class Bot extends Client {
     });
   }
 }
+
+// Change the type of discord.js' Client class to have the same properties as our bot subclass.
+declare module 'discord.js' {
+  interface Client {
+    db: Database;
+    commands: CommandManager;
+
+    createCommands(): void;
+    handleCommands(interaction: Interaction): Promise<void>;
+    handleButtons(interaction: Interaction): Promise<void>;
+  }
+}
