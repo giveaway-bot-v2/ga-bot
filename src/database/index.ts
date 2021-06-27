@@ -21,5 +21,7 @@ export default class Database extends Pool {
     const conn = await this.connect();
 
     await this.keys.init(conn);
+
+    conn.release();
   }
 }
