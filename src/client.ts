@@ -57,6 +57,7 @@ export default class Bot extends Client {
     });
 
     this.db = new Database();
+    this.db.init();
     this.commands = new CommandManager('./commands');
 
     // Register events

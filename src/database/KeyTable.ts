@@ -15,13 +15,13 @@ export interface Key {
 export default class KeyTable extends Table {
   async init(connection?: PoolClient): Promise<void> {
     await (connection || this.database).query(`
-      CREATE TABLE keys (
+      CREATE TABLE IF NOT EXISTS keys (
         id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
         value TEXT UNIQUE NOT NULL,
         message VARCHAR(128),
         claimed BOOLEAN NOT NULL DEFAULT FALSE
       );
-      CREATE INDEX claimable_keys_idx ON keys (claimed);
+      CREATE INDEX IF NOT EXISTS claimable_keys_idx ON keys (claimed);
     `);
   }
 
