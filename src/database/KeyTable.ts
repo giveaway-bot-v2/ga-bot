@@ -67,4 +67,17 @@ export default class KeyTable extends Table {
     });
     return res ? res.rows[0] as Key : null;
   }
+
+  /**
+   * Claim a specific key
+   * @param id The ID of the key
+   * @param connection The connection to use, defaults to a new connection from the pool
+   */
+  async claim(id: number, connection?: PoolClient): Promise<void> {
+    await (connection || this.database).query({
+      name: 'KeyTable_claim',
+      text: 'UPDATE keys SET claimed = TRUE WHERE id=$1;',
+      values: [id],
+    });
+  }
 }

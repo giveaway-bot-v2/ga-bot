@@ -13,6 +13,7 @@
     "dotenv": "^9.0.0",
     "node-fetch": "2.6.1",
     "pg": "^8.6.0",
+    "pg-cursor": "^2.6.0",
     "yaml": "1.10.0"
   },
   "devDependencies": {

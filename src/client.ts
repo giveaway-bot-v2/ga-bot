@@ -7,6 +7,7 @@ import Command from './commands';
 import Database from './database';
 
 import type { Interaction } from 'discord.js';
+import GiveawayManager from './core/GiveawayManager';
 
 /**
  * A collection of commands
@@ -45,8 +46,8 @@ class CommandManager extends Collection<string, Command> {
 
 export default class Bot extends Client {
   db: Database;
-
   commands: CommandManager;
+  giveawayer: GiveawayManager;
 
   constructor() {
     super({
@@ -59,10 +60,13 @@ export default class Bot extends Client {
     this.db = new Database();
     this.db.init();
     this.commands = new CommandManager('./commands');
+    this.giveawayer = new GiveawayManager(this);
 
     // Register events
     this.on('ready', this.createCommands);
+    this.on('ready', this.giveawayer.start.bind(this.giveawayer))
     this.on('interaction', this.handleCommands);
+    this.on('interaction', this.giveawayer.receiveButton.bind(this.giveawayer));
   }
 
   /**
