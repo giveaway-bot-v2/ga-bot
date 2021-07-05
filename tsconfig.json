@@ -7,7 +7,7 @@
     "rootDir": "src/",
     "outDir": "build/",
     "sourceMap": true,
-    "target": "ES6",
+    "target": "ESNext",
     "alwaysStrict": true,
     "noImplicitAny": true,
     "strict":true
