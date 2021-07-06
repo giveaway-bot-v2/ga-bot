@@ -63,6 +63,10 @@ export default class Bot extends Client {
     this.giveawayer = new GiveawayManager(this);
 
     // Register events
+    this.on('ready', async () => {
+      await this.application?.fetch();
+      console.log('GiveawayBot started..');
+    })
     this.on('ready', this.createCommands);
     this.on('ready', this.giveawayer.start.bind(this.giveawayer))
     this.on('interaction', this.handleCommands);
@@ -74,9 +78,7 @@ export default class Bot extends Client {
    * cannot be called before the Client has fully connected to Discord.
    */
   createCommands(): void {
-    if (!this.application) {
-      throw new Error('Client must have reached READY before creating commands!');
-    }
+    if (!this.application) return;
 
     for (const command of this.commands.values()) {
       // For testing (global commands can take an hour to register):
