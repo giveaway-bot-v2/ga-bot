@@ -68,4 +68,17 @@ export default class GuildTable extends Table {
     });
     return res ? res.rows[0] as Guild : null;
   }
+
+  /**
+   * Remove a guild row from the database table
+   * @param id The ID of the guild
+   * @param connection The connection to use, defaults to a new connection from the pool
+   */
+  async remove(id: Snowflake, connection?: PoolClient): Promise<void> {
+    await (connection || this.database).query({
+      name: 'GuildTable_remove',
+      text: 'DELETE FROM guilds WHERE guild_id = $1;',
+      values: [id],
+    });
+  }
 }

@@ -24,6 +24,8 @@ export default class SetupCommand extends Command {
   name = 'setup';
   description = 'Setup giveaways for a channel.';
   permissions: Array<PermissionString> = ['SEND_MESSAGES', 'MANAGE_WEBHOOKS'];
+  // We only want to allow this for the owner
+  authorPermissions: Array<PermissionString> = ['MANAGE_GUILD'];
   options = [
     {
       type: 'CHANNEL' as const,
@@ -33,6 +35,39 @@ export default class SetupCommand extends Command {
     },
   ];
   ignoreDMs = true;
+
+  /**
+   * A helper function to ask the user something
+   * @param interaction The interaction received from Discord
+   * @param message The message to ask the user
+   */
+  prompt(webhook: Webhook, message: string): Promise<boolean | null> {
+    return new Promise(async (resolve) => {
+      const msg = await webhook.send({
+        content: message,
+        components: [
+          new MessageActionRow()
+            .addComponents(
+              new MessageButton()
+                .setCustomID('YES')
+                .setLabel('Yes')
+                .setStyle('DANGER'),
+              new MessageButton()
+                .setCustomID('NO')
+                .setLabel('No')
+                .setStyle('SECONDARY')
+            )
+        ],
+      });
+
+      const collector = new MessageComponentInteractionCollector(msg, { max: 1, time: 1000 * 60 * 1 });
+      collector.once('end', collected => {
+        const interaction = collected.first();
+        webhook.deleteMessage(msg);
+        resolve(interaction?.customID ? interaction.customID === 'YES' : null);
+      });
+    });
+  }
 
   async run(interaction: CommandInteraction): Promise<void> {
     const channel = interaction.options.get('channel')?.channel ?? interaction.channel;
@@ -49,8 +84,13 @@ export default class SetupCommand extends Command {
     if (record) {
       // There is already an inserted guild record
       const webhook = new Webhook(interaction.client, {id: record.webhook_id, token: record.webhook_token});
-      await webhook.send({ content: 'You already have a webhook setup, this one will be replaced.' });
+      const cancel = !await this.prompt(webhook, 'You already have a webhook, would you like to continue?');
+      if (cancel) {
+        return void await interaction.followUp({ content: 'Cancelling...' });
+      }
+
       await webhook.delete('Replacing old GiveawayBot webhook.');
+      await interaction.client.db.guilds.remove((<Guild>interaction.guild).id);
     }
     const webhook = await channel.createWebhook('GiveawayBot', {
       // Only PNGs will render a transparent background
@@ -71,8 +111,8 @@ export default class SetupCommand extends Command {
     });
 
     const collected = await waitForCollect(new MessageComponentInteractionCollector(
-      msg, { max: 1, time: constants.GIVEAWAY_WAIT
-    }));
+      msg, { max: 1, time: constants.GIVEAWAY_WAIT }
+    ));
 
     await webhook.deleteMessage(msg);
 
@@ -80,7 +120,7 @@ export default class SetupCommand extends Command {
       await interaction.followUp({
         content: 'Something went wrong, please try again.',
       });
-      return void await webhook.delete('Setting up GiveawayBot failed.');
+      return await webhook.delete('Setting up GiveawayBot failed.');
     }
 
     await interaction.client.db.guilds.update((<Guild>interaction.guild).id, webhook.id, webhook.token as string);
