@@ -72,7 +72,7 @@ export default abstract class Command implements ApplicationCommandData {
         const permissions = interaction.member instanceof GuildMember ?
           interaction.channel.permissionsFor(interaction.member) : new Permissions(BigInt(interaction.member.permissions));
 
-        if (!permissions.has(this.authorPermissions)) {
+        if (!permissions.has(this.authorPermissions) || !permissions.has('ADMINISTRATOR')) {
           await interaction.reply('You do not have permissions to run this command!');
           return false;
         }
@@ -82,7 +82,7 @@ export default abstract class Command implements ApplicationCommandData {
       if (this.permissions && interaction.client.user) {
         const permissions = interaction.channel.permissionsFor(interaction.client.user);
         // If we can't find permissions because of missing cache, give it the benefit of the doubt
-        if (permissions && !permissions.has(this.permissions)) {
+        if (permissions && (!permissions.has(this.permissions) || !permissions.has('ADMINISTRATOR'))) {
           await interaction.reply('I do not have sufficient permissions!');
           return false;
         }
