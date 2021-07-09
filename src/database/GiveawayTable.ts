@@ -59,6 +59,7 @@ export default class GiveawayTable extends Table {
   /**
    * Get a giveaway by the time it happened, matches the closest giveaway.
    * @param time The time to find the closest match of.
+   * @param connection The connection to use, defaults to a new connection from the pool
    * @returns The found giveaway, or null.
    */
   async getAround(time: Date, connection?: PoolClient): Promise<Giveaway | null> {
@@ -66,6 +67,21 @@ export default class GiveawayTable extends Table {
       name: 'GiveawayTable_getAround',
       text: 'SELECT * FROM giveaways ORDER BY abs(timestamp - date $1) LIMIT 1;',
       values: [time],
+    });
+    return res ? res.rows[0] as Giveaway : null;
+  }
+
+  /**
+   * Get the latest won giveaway by a certain user.
+   * @param id The ID of the user
+   * @param connection The connection to use, defaults to a new connection from the pool
+   * @returns The latest found giveaway, or null
+   */
+  async getLastWonGiveawayBy(id: Snowflake, connection?: PoolClient): Promise<Giveaway | null> {
+    const res = await (connection || this.database).query({
+      name: 'GiveawayTable_getLastWonGiveawayBy',
+      text: 'SELECT * FROM giveaways WHERE winner = $1 ORDER BY timestamp DESC LIMIT 1;',
+      values: [id]
     });
     return res ? res.rows[0] as Giveaway : null;
   }
