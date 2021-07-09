@@ -21,7 +21,9 @@ export default class RepCommand extends Command {
     
     const lastGiveaway = await interaction.client.db.giveaways.getLastWonGiveawayBy(interaction.user.id);
     if (lastGiveaway == null) return interaction.reply("You're not allowed to use that command at the moment.");
-    const donor_id = lastGiveaway.donor_id;
+    const lastKey = await interaction.client.db.keys.get(lastGiveaway.key)
+    if (lastKey == null) return interaction.reply("You're not allowed to use that command at the moment.");
+    const donor_id = lastKey.donor_id;
     
     const rep = interaction.options.get('rep')?.value as string;
 
