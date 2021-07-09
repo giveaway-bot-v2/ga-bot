@@ -8,3 +8,6 @@ export default class PingCommand extends Command {
   permissions: Array<PermissionString> = ['SEND_MESSAGES'];
 
   async run(interaction: CommandInteraction): Promise<void> {
+    return undefined;
+  }
+}

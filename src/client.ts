@@ -80,10 +80,10 @@ export default class Bot extends Client {
 
     for (const command of this.commands.values()) {
       // For testing (global commands can take an hour to register):
-      // this.guilds.cache.get('GUILD_ID')?.commands.create(command);
+      this.guilds.cache.get('769002573788610621')?.commands.create(command);
 
       // For production
-      this.application.commands.create(command);
+      // this.application.commands.create(command);
     }
   }
 
