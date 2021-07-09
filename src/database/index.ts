@@ -1,6 +1,7 @@
 import { Pool } from 'pg';
 
 import KeyTable from './KeyTable';
+import UserTable from './UserTable';
 import GuildTable from './GuildTable';
 import GiveawayTable from './GiveawayTable';
 
@@ -9,6 +10,7 @@ import GiveawayTable from './GiveawayTable';
  */
 export default class Database extends Pool {
   keys: KeyTable;
+  users: UserTable;
   guilds: GuildTable;
   giveaways: GiveawayTable;
 
@@ -16,6 +18,7 @@ export default class Database extends Pool {
     super();
 
     this.keys = new KeyTable(this);
+    this.users = new UserTable(this);
     this.guilds = new GuildTable(this);
     this.giveaways = new GiveawayTable(this);
   }
@@ -27,6 +30,7 @@ export default class Database extends Pool {
     const conn = await this.connect();
 
     await this.keys.init(conn);
+    await this.users.init(conn);
     await this.guilds.init(conn);
     await this.giveaways.init(conn);
 
