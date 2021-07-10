@@ -18,7 +18,7 @@ export function generateEnterAction(id: number): MessageActionRow {
   return new MessageActionRow()
     .addComponents(
       new MessageButton()
-        .setCustomID(`GIVEAWAY-${id.toString(36).toUpperCase()}`)
+        .setCustomId(`GIVEAWAY-${id.toString(36).toUpperCase()}`)
         .setLabel('Enter 🎉')
         .setStyle('PRIMARY')
     )

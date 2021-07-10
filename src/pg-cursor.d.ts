@@ -4,7 +4,7 @@
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 
 declare module "pg-cursor" {
-    import { types, QueryResult } from "pg";
+    import { types, QueryResult, Submittable, Connection } from "pg";
 
     export interface CursorQueryConfig {
         /**
@@ -18,8 +18,10 @@ declare module "pg-cursor" {
         types?: typeof types;
     }
 
-    export class Cursor {
+    export default class Cursor implements Submittable {
         constructor(text: string, values?: any[], config?: CursorQueryConfig);
+
+        submit: (connection: Connection) => void;
 
         read(rowCount: number, callback: (err: Error, rows: any[], result: QueryResult) => void): void;
         read(rowCount: number): Promise<any[]>;

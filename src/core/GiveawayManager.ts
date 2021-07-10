@@ -63,9 +63,9 @@ export default class GiveawayManager {
 
   async receiveButton(interaction: Interaction): Promise<void> {
     if (!interaction.isButton()) return;
-    if (!interaction.customID.startsWith('GIVEAWAY-')) return;
+    if (!interaction.customId.startsWith('GIVEAWAY-')) return;
 
-    await interaction.reply({content: `You have entered ${interaction.customID}`, ephemeral: true});
+    await interaction.reply({content: `You have entered ${interaction.customId}`, ephemeral: true});
   }
 
   /**

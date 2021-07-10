@@ -1,12 +1,12 @@
 import {
   GuildChannel, MessageActionRow, MessageButton,
-  MessageComponentInteraction, MessageComponentInteractionCollector
+  MessageComponentInteraction, InteractionCollector
 } from 'discord.js';
 
 import Command from ".";
 import * as constants from '../core/constants';
 
-import type { PermissionString, CommandInteraction, Guild } from "discord.js";
+import type { ButtonInteraction, PermissionString, CommandInteraction, Guild } from "discord.js";
 import { Webhook } from 'discord.js';
 
 /**
@@ -14,7 +14,7 @@ import { Webhook } from 'discord.js';
  * @param collector The collector to wait for
  * @returns The first interaction received
  */
-function waitForCollect(collector: MessageComponentInteractionCollector): Promise<MessageComponentInteraction | undefined> {
+function waitForCollect(collector: InteractionCollector<ButtonInteraction>): Promise<MessageComponentInteraction | undefined> {
   return new Promise((resolve) => {
     collector.once('end', (collected) => resolve(collected.first()));
   });
@@ -63,16 +63,16 @@ export default class SetupCommand extends Command {
         new MessageActionRow()
           .addComponents(
             new MessageButton()
-              .setCustomID('TEST')
+              .setCustomId('TEST')
               .setLabel('Press me!')
               .setStyle('PRIMARY')
           )
       ]
     });
 
-    const collected = await waitForCollect(new MessageComponentInteractionCollector(
-      msg, { max: 1, time: constants.GIVEAWAY_WAIT
-    }));
+    const collected = await waitForCollect(new InteractionCollector<ButtonInteraction>(
+      interaction.client, { message: msg, max: 1, time: constants.GIVEAWAY_WAIT }
+    ));
 
     await webhook.deleteMessage(msg);
 
