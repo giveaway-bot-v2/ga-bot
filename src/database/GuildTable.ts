@@ -81,4 +81,18 @@ export default class GuildTable extends Table {
       values: [id],
     });
   }
+
+  /**
+   * Remove a guild row from the database if its webhook is in the array
+   * @param ids An array of snowflakes that could be the guild's webhook
+   * @param connection The connection to use, defaults to a new connection from the pool
+   */
+  async removeByWebhooks(ids: Array<Snowflake>, connection?: PoolClient): Promise<Guild | null> {
+    const res = await (connection || this.database).query({
+      name: 'GuildTable_remove',
+      text: 'DELETE FROM guilds WHERE webhook_id IN $1 RETURNING *;',
+      values: [ids],
+    });
+    return res ? res.rows[0] as Guild : null;
+  }
 }

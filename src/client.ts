@@ -1,7 +1,7 @@
 import path from 'path';
 import { promises as fs } from 'fs';  // Use the promises version of the fs API
 
-import { Collection, Client } from 'discord.js';
+import { Collection, Client, DMChannel, GuildChannel, TextChannel } from 'discord.js';
 
 import Command from './commands';
 import Database from './database';
@@ -71,6 +71,10 @@ export default class Bot extends Client {
     this.on('ready', this.giveawayer.start.bind(this.giveawayer))
     this.on('interactionCreate', this.handleCommands);
     this.on('interactionCreate', this.giveawayer.receiveButton.bind(this.giveawayer));
+    // TODO: Register the event to listen to:
+    // https://discord.js.org/#/docs/main/master/class/Client?scrollTo=e-webhookUpdate
+    // https://discord.js.org/#/docs/main/master/class/Client?scrollTo=e-channelDelete
+    ...
   }
 
   /**
@@ -111,6 +115,34 @@ export default class Bot extends Client {
       command.run(interaction);
     });
   }
+
+  /**
+   * ...
+   * @param channel The channel that was updated, or deleted
+   */
+  // TODO: Name this function and configure JSDoc ^^^^^
+  async ...(channel: DMChannel | GuildChannel): Promise<void> {
+    if (!(channel instanceof TextChannel)) return;
+
+    // TODO: Get the channel's webhooks. This may fail, put it in a try / catch?
+    const webhooks = ...;
+
+    // TODO: How do we convert an array of objects, into an array of one of its properties?
+    // We need an array of Ids from the webhooks
+    const guild = await channel.client.db.guilds.removeByWebhooks(...);
+
+    if (!guild) {
+      // No guild was found, probably another webhook was deleted
+      // TODO: What do you want to do?
+      ...
+      return;
+    }
+
+    // If we reach here, it probaly was our webhook that we deleted...
+    // TODO: What do you want to do? Perhaps let the user know? Leave the guild? DM the owner?
+    ...
+
+  }
 }
 
 // Change the type of discord.js' Client class to have the same properties as our bot subclass.
@@ -122,5 +154,7 @@ declare module 'discord.js' {
     createCommands(): void;
     handleCommands(interaction: Interaction): Promise<void>;
     handleButtons(interaction: Interaction): Promise<void>;
+    // TODO: Insert the name
+    ...(channel: DMChannel | GuildChannel): Promise<void>
   }
 }
