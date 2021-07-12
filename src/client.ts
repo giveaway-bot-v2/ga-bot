@@ -69,8 +69,8 @@ export default class Bot extends Client {
     })
     this.on('ready', this.createCommands);
     this.on('ready', this.giveawayer.start.bind(this.giveawayer))
-    this.on('interaction', this.handleCommands);
-    this.on('interaction', this.giveawayer.receiveButton.bind(this.giveawayer));
+    this.on('interactionCreate', this.handleCommands);
+    this.on('interactionCreate', this.giveawayer.receiveButton.bind(this.giveawayer));
   }
 
   /**
