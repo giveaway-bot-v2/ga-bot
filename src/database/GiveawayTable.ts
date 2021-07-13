@@ -2,11 +2,12 @@ import Table from './Table';
 import { Key } from './KeyTable';
 
 import type { PoolClient } from 'pg';
+import type { Snowflake } from 'discord.js';
 
 export interface Giveaway {
   id: number;
   key: number;  // The key ID
-  winner: number | null;
+  winner: Snowflake | null;
   timestamp: Date;
 }
 

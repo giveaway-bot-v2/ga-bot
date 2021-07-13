@@ -7,9 +7,9 @@ import type { Snowflake } from 'discord.js';
  * An inserted Guild row
  */
 export interface Guild {
-  guild_id: number;
+  guild_id: Snowflake;
   lang: string;
-  webhook_id: number;
+  webhook_id: Snowflake;
   webhook_token: string;
 }
 
@@ -46,7 +46,7 @@ export default class GuildTable extends Table {
    * @param connection The connection to use, defaults to a new connection from the pool
    * @returns The new or updated Guild row
    */
-  async update(id: Snowflake, webhookID: string, webhookToken: string, connection?: PoolClient): Promise<Guild> {
+  async update(id: Snowflake, webhookID: Snowflake, webhookToken: string, connection?: PoolClient): Promise<Guild> {
     const query = (`
       INSERT INTO guilds (guild_id, webhook_id, webhook_token) VALUES ($1, $2, $3)
         ON CONFLICT (guild_id) DO
