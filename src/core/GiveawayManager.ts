@@ -17,6 +17,7 @@ import type Bot from '../client';
 function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
+import type { Guild as GuildRow } from '../database/GuildTable';
 
 export default class GiveawayManager {
   private bot: Bot;
@@ -66,6 +67,15 @@ export default class GiveawayManager {
     if (!interaction.customId.startsWith('GIVEAWAY-')) return;
 
     await interaction.reply({content: `You have entered ${interaction.customId}`, ephemeral: true});
+
+  /**
+   * Send a guild's webhook
+   * @param record The guild record
+   * @param options Options to pass to Webhook#send
+   * @returns The message sent
+   */
+  sendWebhook(record: GuildRow, options: WebhookMessageOptions): Promise<Message | APIMessage> {
+    return new Webhook(this.bot, { id: record.webhook_id, token: record.webhook_token }).send(options);
   }
 
   /**
@@ -91,10 +101,7 @@ export default class GiveawayManager {
       const rows = await cursor.read(constants.WEBHOOK_BATCH);
       if (!rows.length) break;  // End of the table
 
-      for (const record of rows) {
-        const webhook = new Webhook(this.bot, {id: record.webhook_id, token: record.webhook_token});
-        promises.push(webhook.send(options));
-      }
+      promises.push(...rows.map(record => this.sendWebhook(record, options)));
     }
 
     conn.release();
