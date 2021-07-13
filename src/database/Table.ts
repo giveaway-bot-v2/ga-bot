@@ -12,9 +12,5 @@ export default abstract class Table {
     this.database = database;
   }
 
-  /**
-   * Initialize the Keys table in PostgreSQL
-   * @param connection The connection to use, defaults to a new connection from the pool
-   */
   abstract init(connection?: PoolClient): void;
 }
