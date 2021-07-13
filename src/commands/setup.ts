@@ -76,18 +76,20 @@ export default class SetupCommand extends Command {
     }
 
     await interaction.defer();
+    const conn = await interaction.client.db.connect();
 
-    const record = await interaction.client.db.guilds.get((<Guild>interaction.guild).id);
+    const record = await interaction.client.db.guilds.get((<Guild>interaction.guild).id, conn);
     if (record) {
       // There is already an inserted guild record
       const webhook = new Webhook(interaction.client, {id: record.webhook_id, token: record.webhook_token});
       const cancel = !await this.prompt(webhook, 'You already have a webhook, would you like to continue?');
       if (cancel) {
+        conn.release();
         return void await interaction.followUp({ content: 'Cancelling...' });
       }
 
       await webhook.delete('Replacing old GiveawayBot webhook.');
-      await interaction.client.db.guilds.remove((<Guild>interaction.guild).id);
+      await interaction.client.db.guilds.remove((<Guild>interaction.guild).id, conn);
     }
     const webhook = await channel.createWebhook('GiveawayBot', {
       // Only PNGs will render a transparent background
@@ -120,10 +122,11 @@ export default class SetupCommand extends Command {
       return await webhook.delete('Setting up GiveawayBot failed.');
     }
 
-    await interaction.client.db.guilds.update((<Guild>interaction.guild).id, webhook.id, webhook.token as string);
+    await interaction.client.db.guilds.update((<Guild>interaction.guild).id, webhook.id, webhook.token as string, conn);
 
     await interaction.followUp({
       content: 'Everything setup correctly, you will now receive giveaways through this webhook.'
     });
+    conn.release();
   }
 }

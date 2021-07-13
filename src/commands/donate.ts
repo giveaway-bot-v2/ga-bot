@@ -37,5 +37,6 @@ export default class DonateCommand extends Command {
     await interaction.reply(
       `Thank you for your donation! You donated key(s): ${keys.map(key => key.id.toString(36)).join(', ')}`
     );
+    conn.release();
   }
 }
