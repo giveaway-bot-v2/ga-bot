@@ -1,23 +1,17 @@
-import { Interaction, Webhook } from 'discord.js';
+import { ButtonInteraction, Guild, Interaction, InteractionCollector } from 'discord.js';
 import Cursor from "pg-cursor";
 
 import * as constants from './constants';
-import { generateAnnouncement } from './utils';
+import * as utils from './utils';
 
 import type { WebhookMessageOptions, Message } from 'discord.js';
 import type { APIMessage } from 'discord-api-types/v8';
+import type { PoolClient } from 'pg';
 
 import type Bot from '../client';
-
-/**
- * Helper function to sleep for a duration
- * @param ms The time to sleep before resolving
- * @returns A promise that resolves after the duration
- */
-function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
+import type { Giveaway } from '../database/GiveawayTable';
 import type { Guild as GuildRow } from '../database/GuildTable';
+import { Entry } from '../database/EntryTable';
 
 export default class GiveawayManager {
   private bot: Bot;
@@ -27,19 +21,41 @@ export default class GiveawayManager {
   }
 
   /**
-   * Start the giveaway loop when the bot hit READY.
+   * Run the main giveaway loop, this function is never meant to return
    */
-  async start(): Promise<void> {
+  async run(): Promise<never> {
     while (true) {
-      await this.new();
-      await sleep(constants.GIVEAWAY_DELAY);
+      await this.start();
+      await utils.sleep(constants.GIVEAWAY_DELAY);
     }
   }
 
   /**
-   * Process a new giveaway
+   * Start a new giveaway, taking care of one complete giveaway start to finish.
+   * This function should be put in a loop with a timeout afterwards.
    */
-  async new(): Promise<void> {
+  async start(): Promise<void> {
+    const giveaway = await this.create();
+    if (!giveaway) return;  // Something failed or no key was found
+
+    await this.send(utils.generateAnnouncement(giveaway));
+    await utils.sleep(constants.GIVEAWAY_WAIT);
+
+    let winner;
+    const conn = await this.bot.db.connect();
+    while (!winner) {
+      await utils.sleep(constants.WINNER_DELAY);
+      winner = await this.pickWinner(giveaway, conn);
+    }
+
+    await this.send(utils.generateFinished(giveaway, winner.author_id));
+    conn.release();
+  }
+
+  /**
+   * Create a new giveaway
+   */
+  async create(): Promise<Giveaway | undefined> {
     const conn = await this.bot.db.connect();
 
     try {
@@ -48,25 +64,71 @@ export default class GiveawayManager {
       const key = await this.bot.db.keys.getClaimable(conn);
       if (!key) return;  // There's no claimable keys
 
-      const giveaway = await this.bot.db.giveaways.new(key);
-      await this.bot.db.keys.claim(key.id);
-      // Announce the giveaway asynchronously
-      this.send(generateAnnouncement(giveaway));
+      const giveaway = await this.bot.db.giveaways.new(key, conn);
+      await this.bot.db.keys.claim(key.id, conn);
+
+      await conn.query('COMMIT;');
+      return giveaway;
     } catch (err) {
       await conn.query('ROLLBACK;');
     } finally {
-      await conn.query('COMMIT;');
       conn.release();
     }
+  }
 
-    await sleep(constants.GIVEAWAY_WAIT);
+  /**
+   * Attempt to pick a winner. If the winner successfully claims the key, the entry is
+   * returned, otherwise undefined and the function should be called again.
+   * @param giveaway The giveaway to pick a winner for
+   * @param conn The connection to use to query the database with
+   * @returns The entry that claimed the key
+   */
+  async pickWinner(giveaway: Giveaway, conn: PoolClient): Promise<Entry | undefined> {
+    // No need to stop the giveaway, if the current attempt fails it does
+    // not hurt if others have entered whilst this is happening.
+
+    const entry = await this.bot.db.entries.pickRandom(giveaway, conn);
+    if (!entry) return;
+    // No need to mark entries, the chance of someone being picked once (failing)
+    // and then being picked again should be very low. Additionally, if everyone
+    // who has entered fails to claim, this implementation means the bot will retry.
+
+    const guild = await this.bot.db.guilds.get(entry.guild_id, conn);
+    if (!guild) {
+      // This means that the guild removed their webhook since entering the giveaway
+      return void await this.bot.db.entries.remove(entry, conn);
+    }
+
+    const webhook = utils.newWebhook(this.bot, guild);
+    const msg = await webhook.send(utils.generateClaim(giveaway, entry.author_id));
+    const collected = await utils.waitForCollect(new InteractionCollector<ButtonInteraction>(
+      this.bot,
+      {
+        filter: (button) => button.user.id === entry.author_id,
+        message: msg, max: 1, time: constants.CLAIM_WAIT
+      },
+    ));
+
+    await webhook.deleteMessage(msg);
+    if (!collected) return;
+
+    return entry;
   }
 
   async receiveButton(interaction: Interaction): Promise<void> {
     if (!interaction.isButton()) return;
     if (!interaction.customId.startsWith('GIVEAWAY-')) return;
 
-    await interaction.reply({content: `You have entered ${interaction.customId}`, ephemeral: true});
+    const inserted = await interaction.client.db.entries.new(
+      utils.getId(interaction.customId), (<Guild>interaction.guild).id, interaction.user.id
+    );
+
+    await interaction.reply({
+      // If no new entry was created, tell the user they have already entered
+      content: `You ${!inserted ? 'have already ' : ''}entered ${interaction.customId}`,
+      ephemeral: true
+    });
+  }
 
   /**
    * Send a guild's webhook
@@ -75,7 +137,7 @@ export default class GiveawayManager {
    * @returns The message sent
    */
   sendWebhook(record: GuildRow, options: WebhookMessageOptions): Promise<Message | APIMessage> {
-    return new Webhook(this.bot, { id: record.webhook_id, token: record.webhook_token }).send(options);
+    return utils.newWebhook(this.bot, record).send(options);
   }
 
   /**

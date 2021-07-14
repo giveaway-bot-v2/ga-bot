@@ -1,24 +1,14 @@
 import {
   GuildChannel, MessageActionRow, MessageButton,
-  MessageComponentInteraction, InteractionCollector
+  InteractionCollector
 } from 'discord.js';
 
 import Command from ".";
 import * as constants from '../core/constants';
+import { newWebhook, waitForCollect } from '../core/utils';
 
 import type { ButtonInteraction, PermissionString, CommandInteraction, Guild } from "discord.js";
 import { Webhook } from 'discord.js';
-
-/**
- * Create a promise that resolves with the first interaction received
- * @param collector The collector to wait for
- * @returns The first interaction received
- */
-function waitForCollect(collector: InteractionCollector<ButtonInteraction>): Promise<MessageComponentInteraction | undefined> {
-  return new Promise((resolve) => {
-    collector.once('end', (collected) => resolve(collected.first()));
-  });
-}
 
 export default class SetupCommand extends Command {
   name = 'setup';
@@ -81,7 +71,7 @@ export default class SetupCommand extends Command {
     const record = await interaction.client.db.guilds.get((<Guild>interaction.guild).id, conn);
     if (record) {
       // There is already an inserted guild record
-      const webhook = new Webhook(interaction.client, {id: record.webhook_id, token: record.webhook_token});
+      const webhook = newWebhook(interaction.client, record);
       const cancel = !await this.prompt(webhook, 'You already have a webhook, would you like to continue?');
       if (cancel) {
         conn.release();
