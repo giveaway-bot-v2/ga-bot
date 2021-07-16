@@ -67,25 +67,41 @@ export default class Bot extends Client {
       await this.application?.fetch();
       console.log('GiveawayBot started..');
     })
-    this.on('ready', this.createCommands);
+    this.on('ready', this.updateCommands);
     this.on('ready', this.giveawayer.run.bind(this.giveawayer))
     this.on('interactionCreate', this.handleCommands);
     this.on('interactionCreate', this.giveawayer.receiveButton.bind(this.giveawayer));
   }
 
   /**
-   * Create Discord slash commands for all registered commands,
-   * cannot be called before the Client has fully connected to Discord.
+   * Make sure Discord is up-to-date with the commands we have registered locally, this
+   * will create, edit or delete the commands depending on what is detected to have changed.
    */
-  createCommands(): void {
+  async updateCommands(): Promise<void> {
     if (!this.application) return;
 
-    for (const command of this.commands.values()) {
-      // For testing (global commands can take an hour to register):
-      // this.guilds.cache.get('GUILD_ID')?.commands.create(command);
+    // We have to do the following in two loops, because either collection could
+    // be missing (or having an extra) element
 
-      // For production
-      this.application.commands.create(command);
+    const online = await this.application.commands.fetch();
+    for (const command of online.values()) {
+      const local = this.commands.get(command.name);
+      if (!local) {
+        await command.delete();
+        continue;
+      }
+
+      if (command.options != local.options || command.description != local.description) {
+        await command.edit(local);
+        continue;
+      }
+    }
+
+    for (const [name, command] of this.commands) {
+      const found = online.find(elem => elem.name === name);
+      if (found) continue;
+
+      await this.application.commands.create(command);
     }
   }
 
@@ -119,7 +135,7 @@ declare module 'discord.js' {
     db: Database;
     commands: CommandManager;
 
-    createCommands(): void;
+    updateCommands(): Promise<void>;
     handleCommands(interaction: Interaction): Promise<void>;
     handleButtons(interaction: Interaction): Promise<void>;
   }
