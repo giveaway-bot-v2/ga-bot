@@ -5,7 +5,7 @@ import type { Snowflake } from 'discord.js';
 
 export interface Key {
   id: number;
-  donor_id: bigint;
+  donor_id: Snowflake;
   value: string;
   message: string;
   claimed: boolean;
@@ -24,8 +24,8 @@ export default class KeyTable extends Table {
   async new(donor_id: Snowflake, value: string, message?: string | null, connection?: PoolClient): Promise<Key> {
     const res = await (connection || this.database).query({
       name: 'KeyTable_new',
-      text:'INSERT INTO keys (donor_id, value, message) VALUES ($1, $2) RETURNING *;',
-      values: [value, message],
+      text:'INSERT INTO keys (donor_id, value, message) VALUES ($1, $2, $3) RETURNING *;',
+      values: [donor_id, value, message],
     });
     return res.rows[0] as Key;
   }

@@ -7,7 +7,7 @@ import type { Snowflake } from 'discord.js';
  * An inserted User row
  */
 export interface User {
-  user_id: bigint;
+  user_id: Snowflake;
   reputation: number;
   donated_keys: number;
   claimed_keys: number;
@@ -92,7 +92,7 @@ export default class UserTable extends Table {
   }
 
   /**
-   * Get an user.
+   * Get a user by its ID.
    * @param id The ID of the user
    * @param connection The connection to use, defaults to a new connection from the pool
    */

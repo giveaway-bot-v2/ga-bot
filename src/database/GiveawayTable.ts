@@ -72,14 +72,14 @@ export default class GiveawayTable extends Table {
   }
 
   /**
-   * Get the latest won giveaway by a certain user.
+   * Get the latest giveaway the user won.
    * @param id The ID of the user
    * @param connection The connection to use, defaults to a new connection from the pool
-   * @returns The latest found giveaway, or null
+   * @returns The latest giveaway found, or null
    */
-  async getLastWonGiveawayBy(id: Snowflake, connection?: PoolClient): Promise<Giveaway | null> {
+  async getLastWon(id: Snowflake, connection?: PoolClient): Promise<Giveaway | null> {
     const res = await (connection || this.database).query({
-      name: 'GiveawayTable_getLastWonGiveawayBy',
+      name: 'GiveawayTable_getLastWon',
       text: 'SELECT * FROM giveaways WHERE winner = $1 ORDER BY timestamp DESC LIMIT 1;',
       values: [id]
     });
