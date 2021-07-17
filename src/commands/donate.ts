@@ -8,7 +8,7 @@ export default class DonateCommand extends Command {
   name = 'donate';
   description = 'Donate a key to be given away.';
   permissions: Array<PermissionString> = ['SEND_MESSAGES'];
-  ignoreGuilds = true;
+  DMOnly = true;
   options = [
     {
       type: 'STRING' as const,
