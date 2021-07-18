@@ -51,6 +51,8 @@ export default abstract class Command implements ApplicationCommandData {
    */
   guildOnly = false;
 
+  [value: string]: unknown;  // Tell TypeScript this class can be indexed
+
   /**
    * Run all command checks to see if the command can be executed
    * @param interaction The command interaction invoked
@@ -114,7 +116,19 @@ export default abstract class Command implements ApplicationCommandData {
    * The command's actual implementation, must be overriden.
    * @param event The command interaction invoked
    */
-  async run(_event: CommandInteraction): Promise<void> {
-    throw new Error('Command run method not defined!');
+  async run(event: CommandInteraction): Promise<void> {
+    for (const [name, option] of event.options) {
+      if (option.type !== 'SUB_COMMAND') continue;
+
+      const func = this[name];
+      if (!(typeof func === 'function')) {
+        throw new Error(`Expected property ${name} to be callable per subcommand option.`);
+      }
+
+      return await (func as (event: CommandInteraction) => Promise<void>)(event);
+    }
+
+    // This means we did not find a subcommand, and this method was not overriden
+    throw new Error('No subcommands used and run method not defined!');
   }
 }

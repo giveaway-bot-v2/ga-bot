@@ -14,7 +14,15 @@ be named appropriately.
 
 All commands should inherit from the abstract class [Command](index.ts) -
 which can be imported with `import Command from ".";` - and override the
-`name` and `description` properties along with the `run` method. Optionally
+`name` and `description` properties along with the `run` method unless
+subcommands are used (read more at [Subcommands](#subcommands)). Optionally
 the command can also override the `check` method. Please name your class in
 PascalCase with the name followed by Command, see [PingCommand](ping.ts) for
 a simple example.
+
+## Subcommands
+
+The abstract class [Command](index.ts) will automatically detect if your
+options triggered subcommands and will run the method with the same name as
+the subcommand option. This is handled by the default implementation of `run`,
+as such you cannot define a `run` method if your command uses subcommands.
