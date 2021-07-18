@@ -30,8 +30,10 @@ class CommandManager extends Collection<string, Command> {
     const resolved = path.resolve(__dirname, dir);
 
     for (const item of await fs.readdir(resolved, { withFileTypes: true })) {
+      if (item.name.startsWith('_')) continue;
       if (item.isDirectory()) await this.loadDir(resolved + item.name);
-      if (item.name.startsWith('_') || !item.name.endsWith('.js')) continue;
+
+      if (!item.name.endsWith('.js')) continue;
 
       const command: Command = new (await import(path.join(resolved, item.name))).default;
 

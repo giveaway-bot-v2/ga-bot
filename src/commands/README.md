@@ -5,9 +5,10 @@ loaded when you start the bot.
 
 ## Creating new files
 
-Note that the bot tries to import and load all files in this directory (even
-in sub-directories). If you need to create a file that shouldn't be loaded
-its name need to be prefixed with an underscore `_`.
+The bot tries to import and load all files in this directory (even
+sub-directories). If you need to create a file or directory that shouldn't
+be loaded its name should be prefixed with an underscore `_`. Files should
+be named appropriately.
 
 ## Creating new commands
 
