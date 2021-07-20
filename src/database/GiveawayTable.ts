@@ -88,6 +88,12 @@ export default class GiveawayTable extends Table {
     return res ? res.rows[0] as Giveaway : null;
   }
 
+  /**
+   * Specify if a reputation point has been given or not
+   * @param id The ID of the giveaway
+   * @param given Boolean value
+   * @param connection The connection to use, defaults to a new connection from the pool
+   */
   async setRepGiven(id: number, given: boolean, connection?: PoolClient): Promise<void> {
     await (connection || this.database).query({
       name: 'GiveawayTable_setRepGiven',

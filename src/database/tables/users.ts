@@ -29,7 +29,7 @@ export default class UserTable extends Table {
   }
   
   /**
-   * Insert or update an user (upsert).
+   * Insert or update a user (upsert).
    * @param id The ID of the user
    * @param reputation The reputation of the user
    * @param connection The connection to use, defaults to a new connection from the pool
@@ -50,30 +50,29 @@ export default class UserTable extends Table {
   }
 
   /**
-   * Increment reputation of an user (upsert).
+   * Increment reputation of a user.
    * @param id The ID of the user
-   * @param reputationInc Reputation increment
+   * @param reputationInc How much to increment the reputation value
    * @param connection The connection to use, defaults to a new connection from the pool
-   * @returns The new or updated User row
+   * @returns The updated User row
    */
   async incrementRep(id: Snowflake, reputationInc: number, connection?: PoolClient): Promise<User> {
     const query = (`
-      INSERT INTO users (user_id, reputation) VALUES ($1, $2)
-        ON CONFLICT (user_id) DO
-      UPDATE SET reputation = reputation + $2 RETURNING *;
+      UPDATE users SET reputation = reputation + $1
+      WHERE user_id = $2 RETURNING *;
     `);
     const res = await (connection || this.database).query({
-      name: 'UserTable_updateReputation',
+      name: 'UserTable_incrementReputation',
       text: query,
-      values: [id, reputationInc]
+      values: [reputationInc, id]
     });
     return res.rows[0] as User;
   }
 
   /**
-   * Increment donated keys of an user (upsert).
+   * Increment donated keys of a user (upsert).
    * @param id The ID of the user
-   * @param donatedKeysInc Donated keys increment
+   * @param donatedKeysInc How much to increment the donated keys value
    * @param connection The connection to use, defaults to a new connection from the pool
    * @returns The new or updated User row
    */
