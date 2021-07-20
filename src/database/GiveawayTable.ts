@@ -8,6 +8,7 @@ export interface Giveaway {
   id: number;
   key: number;  // The key ID
   winner: Snowflake | null;
+  rep_given: boolean;
   timestamp: Date;
 }
 
@@ -21,6 +22,7 @@ export default class GiveawayTable extends Table {
         id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
         key INT UNIQUE NOT NULL REFERENCES keys,
         winner BIGINT,
+        rep_given BOOLEAN DEFAULT FALSE,
         timestamp TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'UTC')
       );
     `);
@@ -84,5 +86,13 @@ export default class GiveawayTable extends Table {
       values: [id]
     });
     return res ? res.rows[0] as Giveaway : null;
+  }
+
+  async setRepGiven(id: number, given: boolean, connection?: PoolClient): Promise<void> {
+    await (connection || this.database).query({
+      name: 'GiveawayTable_setRepGiven',
+      text: 'UPDATE giveaways SET rep_given = $1 WHERE id = $2;',
+      values: [given, id]
+    });
   }
 }

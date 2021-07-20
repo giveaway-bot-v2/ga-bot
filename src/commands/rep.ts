@@ -9,38 +9,54 @@ export default class RepCommand extends Command {
   DMOnly = true;
   options = [
     {
-      type: 'STRING' as const,
-      name: 'rep',
-      description: 'Use the words "good" or "bad"',
+      type: 'SUB_COMMAND' as const,
+      name: 'good',
+      description: 'Give a good reputation point',
+      required: true
+    },
+    {
+      type: 'SUB_COMMAND' as const,
+      name: 'bad',
+      description: 'Give a bad reputation point',
       required: true
     }
   ];
 
-  async run(interaction: CommandInteraction): Promise<void> {
+  async good(interaction: CommandInteraction): Promise<void> {
     const conn = await interaction.client.db.connect();
     
     const lastGiveaway = await interaction.client.db.giveaways.getLastWon(interaction.user.id);
-    if (lastGiveaway == null) return interaction.reply("You're not allowed to use that command at the moment.");
+    if (lastGiveaway == null) return interaction.reply("You cannot use this command at the moment.");
+    if (lastGiveaway.rep_given === true) {
+      return interaction.reply('A reputation point has already been given to this donor.')
+    }
 
     const lastKey = await interaction.client.db.keys.get(lastGiveaway.key)
-    if (lastKey == null) return interaction.reply("You're not allowed to use that command at the moment.");
+    if (lastKey == null) return interaction.reply("No key was found on your latest giveaway.");
 
-    // TODO: Check if the user already gave a reputation point
+    await interaction.client.db.users.incrementRep(lastKey.donor_id, 1, conn);
+    await interaction.client.db.giveaways.setRepGiven(lastGiveaway.id, true, conn);
+    conn.release();
+    
+    return interaction.reply('A good reputation point has been given.');
+  }
 
-    switch (interaction.options.get('rep')?.value) {
-      case 'good':
-        await interaction.client.db.users.incrementRep(lastKey.donor_id, 1, conn);
-        conn.release();
-        return interaction.reply('A good reputation point has been given.');
-
-      case 'bad':
-        await interaction.client.db.users.incrementRep(lastKey.donor_id, -1, conn);
-        conn.release();
-        return interaction.reply('A bad reputation point has been given.');
-
-      default:
-        conn.release();
-        return interaction.reply('Please choose between "good" or "bad"');
+  async bad(interaction: CommandInteraction): Promise<void> {
+    const conn = await interaction.client.db.connect();
+    
+    const lastGiveaway = await interaction.client.db.giveaways.getLastWon(interaction.user.id);
+    if (lastGiveaway == null) return interaction.reply("You cannot use this command at the moment.");
+    if (lastGiveaway.rep_given === true) {
+      return interaction.reply('A reputation point has already been given to this donor.')
     }
+
+    const lastKey = await interaction.client.db.keys.get(lastGiveaway.key)
+    if (lastKey == null) return interaction.reply("No key was found on your latest giveaway.");
+
+    await interaction.client.db.users.incrementRep(lastKey.donor_id, -1, conn);
+    await interaction.client.db.giveaways.setRepGiven(lastGiveaway.id, true, conn);
+    conn.release();
+    
+    return interaction.reply('A bad reputation point has been given.');
   }
 }
