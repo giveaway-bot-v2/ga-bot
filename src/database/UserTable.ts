@@ -50,26 +50,6 @@ export default class UserTable extends Table {
   }
 
   /**
-   * Increment reputation of a user.
-   * @param id The ID of the user
-   * @param reputationInc How much to increment the reputation value
-   * @param connection The connection to use, defaults to a new connection from the pool
-   * @returns The updated User row
-   */
-  async incrementRep(id: Snowflake, reputationInc: number, connection?: PoolClient): Promise<User> {
-    const query = (`
-      UPDATE users SET reputation = reputation + $1
-      WHERE user_id = $2 RETURNING *;
-    `);
-    const res = await (connection || this.database).query({
-      name: 'UserTable_incrementReputation',
-      text: query,
-      values: [reputationInc, id]
-    });
-    return res.rows[0] as User;
-  }
-
-  /**
    * Increment donated keys of a user (upsert).
    * @param id The ID of the user
    * @param donatedKeysInc How much to increment the donated keys value
