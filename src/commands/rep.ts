@@ -27,7 +27,7 @@ export default class RepCommand extends Command {
     try {
       const lastGiveaway = await interaction.client.db.giveaways.getLastWon(interaction.user.id);
       if (lastGiveaway == null) return interaction.reply("You cannot use this command at the moment.");
-      if (lastGiveaway.rep_given === true) {
+      else if (lastGiveaway.rep_given === true) {
         return interaction.reply('A reputation point has already been given to this donor.')
       }
 
@@ -35,8 +35,20 @@ export default class RepCommand extends Command {
       // This should never happen. We do it for the typing.
       if (lastKey == null) return interaction.reply("No key was found on your latest giveaway.");
 
-      await interaction.client.db.users.incrementRep(lastKey.donor_id, increment, conn);
-      await interaction.client.db.giveaways.setRepGiven(lastGiveaway.id, true, conn);
+      await conn.query({
+        name: 'RepCommand_giveReputationPoint',
+        text: `
+          WITH (
+            SELECT id, key FROM giveaways WHERE winner = $1 ORDER BY timestamp DESC;
+          ) AS last_giveaway;
+          UPDATE giveaways SET rep_given = TRUE WHERE id = last_giveaway.id;
+          UPDATE users SET reputation = reputation + $2 WHERE user_id = (
+            SELECT donor_id FROM keys WHERE id = last_giveaway.key;
+          ) RETURNING *;
+        `,
+        values: [interaction.user.id, increment]
+      });
+
       await conn.query('COMMIT;');
     } catch {
       await conn.query('ROLLBACK;');
