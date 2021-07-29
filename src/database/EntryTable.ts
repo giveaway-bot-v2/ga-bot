@@ -55,7 +55,7 @@ export default class EntryTable extends Table {
       text: 'SELECT * FROM entries WHERE giveaway_id = $1 ORDER BY RANDOM() LIMIT 1;',
       values: [typeof giveaway === 'number' ? giveaway : giveaway.id],
     })
-    return res ? res.rows[0] : null;
+    return res.rowCount ? res.rows[0] : null;
   }
 
   /**

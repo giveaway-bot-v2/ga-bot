@@ -53,7 +53,7 @@ export default class GiveawayTable extends Table {
       text: 'SELECT * FROM giveaways WHERE id = $1 LIMIT 1;',
       values: [id],
     });
-    return res ? res.rows[0] as Giveaway : null;
+    return res.rowCount ? res.rows[0] as Giveaway : null;
   }
 
   /**
@@ -67,6 +67,6 @@ export default class GiveawayTable extends Table {
       text: 'SELECT * FROM giveaways ORDER BY abs(timestamp - date $1) LIMIT 1;',
       values: [time],
     });
-    return res ? res.rows[0] as Giveaway : null;
+    return res.rowCount ? res.rows[0] as Giveaway : null;
   }
 }

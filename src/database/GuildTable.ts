@@ -66,7 +66,7 @@ export default class GuildTable extends Table {
       text: 'SELECT * FROM guilds WHERE guild_id = $1;',
       values: [id],
     });
-    return res ? res.rows[0] as Guild : null;
+    return res.rowCount ? res.rows[0] as Guild : null;
   }
 
   /**

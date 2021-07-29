@@ -52,7 +52,7 @@ export default class KeyTable extends Table {
       text: 'SELECT * FROM keys WHERE id = $1 LIMIT 1;',
       values: [id],
     });
-    return res ? res.rows[0] as Key : null;
+    return res.rowCount ? res.rows[0] as Key : null;
   }
 
   /**
@@ -65,7 +65,7 @@ export default class KeyTable extends Table {
       name: 'KeyTable_getClaimable',
       text: 'SELECT * FROM keys WHERE claimed = FALSE ORDER BY RANDOM() LIMIT 1;',
     });
-    return res ? res.rows[0] as Key : null;
+    return res.rowCount ? res.rows[0] as Key : null;
   }
 
   /**
