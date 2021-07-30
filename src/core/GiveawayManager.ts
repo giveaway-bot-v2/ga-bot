@@ -43,11 +43,13 @@ export default class GiveawayManager {
 
     let winner;
     const conn = await this.bot.db.connect();
+    await this.bot.db.giveaways.incrementState(giveaway.id, conn);
     while (!winner) {
       await utils.sleep(constants.WINNER_DELAY);
       winner = await this.pickWinner(giveaway, conn);
     }
 
+    await this.bot.db.giveaways.incrementState(giveaway.id, conn);
     await this.send(utils.generateFinished(giveaway, winner.author_id));
     conn.release();
   }
@@ -119,6 +121,12 @@ export default class GiveawayManager {
     if (!interaction.isButton()) return;
     if (!interaction.customId.startsWith('GIVEAWAY-')) return;
 
+    if (await interaction.client.db.giveaways.getOpen() != utils.getId(interaction.customId)) {
+      return await interaction.reply({
+        content: 'This giveaway is not accepting entries.',
+        ephemeral: true
+      })
+    }
     const inserted = await interaction.client.db.entries.new(
       utils.getId(interaction.customId), (<Guild>interaction.guild).id, interaction.user.id
     );

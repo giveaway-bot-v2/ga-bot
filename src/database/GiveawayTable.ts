@@ -11,6 +11,12 @@ export interface Giveaway {
   timestamp: Date;
 }
 
+export enum GiveawayState {
+  RUNNING,
+  PICKING,
+  FINISHED,
+}
+
 /**
  * The PostgreSQL giveaway table.
  */
@@ -21,8 +27,11 @@ export default class GiveawayTable extends Table {
         id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
         key INT UNIQUE NOT NULL REFERENCES keys,
         winner BIGINT,
+        state SMALLINT DEFAULT 0,
         timestamp TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'UTC')
       );
+      -- This will make sure that only one giveaways row has a state other than closed
+      CREATE UNIQUE INDEX IF NOT EXISTS giveaway_state_idx ON giveaways (state) WHERE state != 2;
     `);
   }
 
@@ -57,6 +66,19 @@ export default class GiveawayTable extends Table {
   }
 
   /**
+   * Get the currently open giveaway.
+   * @param connection The connection to use, defaults to a new connection from the pool
+   * @returns The found giveaway, or null.
+   */
+  async getOpen(connection?: PoolClient): Promise<number> {
+    const res = await (connection || this.database).query({
+      name: 'GiveawayTable_get',
+      text: 'SELECT id FROM giveaways WHERE state = 0 LIMIT 1;',
+    });
+    return res.rowCount ? res.rows[0].id : null;
+  }
+
+  /**
    * Get a giveaway by the time it happened, matches the closest giveaway.
    * @param time The time to find the closest match of.
    * @returns The found giveaway, or null.
@@ -68,5 +90,18 @@ export default class GiveawayTable extends Table {
       values: [time],
     });
     return res.rowCount ? res.rows[0] as Giveaway : null;
+  }
+
+  /**
+   * Increment the giveaway's state one step.
+   * @param id The ID of the giveaway
+   * @param connection The connection to use, defaults to a new connection from the pool
+   */
+  async incrementState(id: number, connection?: PoolClient): Promise<void> {
+    await (connection || this.database).query({
+      name: 'GiveawayTable_incrementState',
+      text: 'UPDATE giveaways SET state = state + 1 WHERE id = $1;',
+      values: [id],
+    });
   }
 }
