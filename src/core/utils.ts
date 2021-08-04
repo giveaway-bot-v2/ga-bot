@@ -93,7 +93,7 @@ export function getId(customID: string): number {
  * @returns The webhook constructed
  */
 export function newWebhook(bot: Client, guild: Guild): Webhook {
-  return new Webhook(bot, {id: guild.webhook_id, token: guild.webhook_token});
+  return new Webhook(bot, {id: guild.webhook_id, guild_id: guild.guild_id, token: guild.webhook_token});
 }
 
 /**

@@ -5,7 +5,7 @@ import * as constants from './constants';
 import * as utils from './utils';
 
 import type { WebhookMessageOptions, Message } from 'discord.js';
-import type { APIMessage } from 'discord-api-types/v8';
+import type { APIMessage } from 'discord-api-types/v9';
 import type { PoolClient } from 'pg';
 
 import type Bot from '../client';

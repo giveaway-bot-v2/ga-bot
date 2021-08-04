@@ -9,11 +9,11 @@
     "start": "npm run build && node build/"
   },
   "dependencies": {
-    "discord.js": "^13.0.0-dev.d6c43a5.1625832172",
+    "discord.js": "^13.0.0-dev.t1628035429.00d5cee",
     "dotenv": "^9.0.0",
     "node-fetch": "2.6.1",
     "pg": "^8.6.0",
-    "pg-cursor": "^2.6.0",
+    "pg-cursor": "^2.7.1",
     "yaml": "1.10.0"
   },
   "devDependencies": {

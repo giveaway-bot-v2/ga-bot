@@ -117,10 +117,10 @@ export default abstract class Command implements ApplicationCommandData {
    * @param event The command interaction invoked
    */
   async run(event: CommandInteraction): Promise<void> {
-    for (const [name, option] of event.options) {
+    for (const option of event.options.data) {
       if (option.type !== 'SUB_COMMAND') continue;
 
-      const func = this[name];
+      const func = this[option.name];
       if (!(typeof func === 'function')) {
         throw new Error(`Expected property ${name} to be callable per subcommand option.`);
       }
