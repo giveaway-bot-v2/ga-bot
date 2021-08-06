@@ -65,7 +65,7 @@ export default class SetupCommand extends Command {
       return await interaction.reply('That is not a text channel.');
     }
 
-    await interaction.defer();
+    await interaction.deferReply();
     const conn = await interaction.client.db.connect();
 
     const record = await interaction.client.db.guilds.get((<Guild>interaction.guild).id, conn);
