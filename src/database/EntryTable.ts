@@ -21,7 +21,7 @@ export default class EntryTable extends Table {
         guild_id BIGINT NOT NULL,
         author_id BIGINT NOT NULL,
         timestamp TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'UTC'),
-        UNIQUE (giveaway_id, author_id)
+        PRIMARY KEY (giveaway_id, author_id)
       );
     `);
   }
