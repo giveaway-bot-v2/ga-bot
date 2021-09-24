@@ -5,9 +5,9 @@ import { Collection, Client } from 'discord.js';
 
 import Command from './commands';
 import Database from './database';
+import GiveawayManager from './core/manager';
 
 import type { Interaction } from 'discord.js';
-import GiveawayManager from './core/GiveawayManager';
 
 /**
  * A collection of commands

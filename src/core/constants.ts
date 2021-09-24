@@ -12,3 +12,9 @@ export const WINNER_DELAY = minute * 1;
 export const CLAIM_WAIT = minute * 0.5;  // 30 seconds
 
 export const WEBHOOK_BATCH = 50;
+
+// The following are all giveaway states
+export const GIVEAWAY_CREATE = 0;
+export const GIVEAWAY_PICKWINNER = 1;
+export const GIVEAWAY_FINISH = 2;
+export const GIVEAWAY_ENED = -1;
