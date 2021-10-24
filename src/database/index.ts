@@ -1,9 +1,6 @@
 import { Pool } from 'pg';
 
-import KeyTable from './KeyTable';
-import GuildTable from './GuildTable';
-import GiveawayTable from './GiveawayTable';
-import EntryTable from './EntryTable';
+import { KeyTable, GuildTable, GiveawayTable, EntryTable } from './tables';
 
 /**
  * Our PostgreSQL database

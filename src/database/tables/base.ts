@@ -1,6 +1,6 @@
 import type { PoolClient } from 'pg';
 
-import type Database from '.';
+import type Database from '..';
 
 export default abstract class Table {
   /**

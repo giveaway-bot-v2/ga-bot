@@ -1,10 +1,10 @@
-import Table from './Table';
+import Table from './base';
 
 import type { PoolClient } from 'pg';
 import type { Snowflake } from 'discord.js';
 
-import { Entry } from './EntryTable';
-import type { Key } from './KeyTable';
+import { Entry } from './entries';
+import type { Key } from './keys';
 
 export interface Giveaway {
   id: number;

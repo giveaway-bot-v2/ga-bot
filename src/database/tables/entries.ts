@@ -1,5 +1,5 @@
-import Table from './Table';
-import { Giveaway } from './GiveawayTable';
+import Table from './base';
+import { Giveaway } from './giveaways';
 
 import type { PoolClient } from 'pg';
 import type { Snowflake } from 'discord.js';

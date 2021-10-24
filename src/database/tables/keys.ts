@@ -1,4 +1,4 @@
-import Table from './Table';
+import Table from './base';
 
 import type { PoolClient } from 'pg';
 
