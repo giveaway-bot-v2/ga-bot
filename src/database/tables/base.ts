@@ -1,5 +1,3 @@
-import type { PoolClient } from 'pg';
-
 import type Database from '..';
 
 export default abstract class Table {
@@ -11,6 +9,4 @@ export default abstract class Table {
   constructor (database: Database) {
     this.database = database;
   }
-
-  abstract init(connection?: PoolClient): void;
 }

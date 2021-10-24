@@ -60,7 +60,7 @@ export default class Bot extends Client {
     });
 
     this.db = new Database();
-    this.db.init();
+    this.db.migrate();
     this.commands = new CommandManager('./commands');
     this.giveawayer = new GiveawayManager(this);
 

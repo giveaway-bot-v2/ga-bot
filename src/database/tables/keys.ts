@@ -13,18 +13,6 @@ export interface Key {
  * The PostgreSQL keys table
  */
 export default class KeyTable extends Table {
-  async init(connection?: PoolClient): Promise<void> {
-    await (connection || this.database).query(`
-      CREATE TABLE IF NOT EXISTS keys (
-        id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-        value TEXT UNIQUE NOT NULL,
-        message VARCHAR(128),
-        claimed BOOLEAN NOT NULL DEFAULT FALSE
-      );
-      CREATE INDEX IF NOT EXISTS claimable_keys_idx ON keys (claimed);
-    `);
-  }
-
   /**
    * Create and return a new key
    * @param value The value of the key

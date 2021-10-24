@@ -24,20 +24,6 @@ export enum GiveawayState {
  * The PostgreSQL giveaway table.
  */
 export default class GiveawayTable extends Table {
-  async init(connection?: PoolClient): Promise<void> {
-    await (connection || this.database).query(`
-      CREATE TABLE IF NOT EXISTS giveaways (
-        id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-        key INT UNIQUE NOT NULL REFERENCES keys,
-        winner BIGINT,
-        state SMALLINT DEFAULT 0,
-        timestamp TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'UTC')
-      );
-      -- This will make sure that only one giveaways row has a state other than closed
-      CREATE UNIQUE INDEX IF NOT EXISTS giveaway_state_idx ON giveaways (state) WHERE state != -1;
-    `);
-  }
-
   /**
    * Create a new giveaway.
    * @param key The key or key id that the giveaway is giving away

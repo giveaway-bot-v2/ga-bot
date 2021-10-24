@@ -1,4 +1,4 @@
-import Table from './Table';
+import Table from './base';
 
 import type { PoolClient } from 'pg';
 import type { Snowflake } from 'discord.js'; 
@@ -17,27 +17,6 @@ export interface Guild {
  * The PostgreSQL guilds table
  */
 export default class GuildTable extends Table {
-  async init(connection?: PoolClient): Promise<void> {
-    // You cannot use IF NOT EXISTS on a type, so we'll have to
-    // wrap this one in a try statement.
-    try {
-      await (connection || this.database).query(`
-        CREATE TYPE language AS ENUM (
-          'ENG'
-        );
-        CREATE TABLE IF NOT EXISTS guilds (
-          guild_id BIGINT PRIMARY KEY,
-          lang language NOT NULL DEFAULT 'ENG',
-          webhook_id BIGINT UNIQUE,
-          webhook_token TEXT UNIQUE
-        );
-        CREATE INDEX IF NOT EXISTS guild_webhooks_idx ON guilds (lang, webhook_id, webhook_token);
-      `);
-    } catch (error) {
-      // Just ignore
-    }
-  }
-
   /**
    * Insert or update a guild (upsert).
    * @param id The ID of the guild

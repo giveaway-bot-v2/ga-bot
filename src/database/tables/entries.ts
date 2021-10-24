@@ -14,18 +14,6 @@ export interface Entry {
  * The PostgreSQL entry table.
  */
 export default class EntryTable extends Table {
-  async init(connection?: PoolClient): Promise<void> {
-    await (connection || this.database).query(`
-      CREATE TABLE IF NOT EXISTS entries (
-        giveaway_id BIGINT NOT NULL REFERENCES giveaways,
-        guild_id BIGINT NOT NULL,
-        author_id BIGINT NOT NULL,
-        timestamp TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'UTC'),
-        PRIMARY KEY (giveaway_id, author_id)
-      );
-    `);
-  }
-
   /**
    * Safely create a new entry, the database constraints ensures no duplicate entries
    * @param giveaway The giveaway (or ID of the giveaway) to enter
