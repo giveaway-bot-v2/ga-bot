@@ -4,7 +4,7 @@ import Event from '.';
 
 import type { PoolClient } from 'pg';
 
-import type { Giveaway } from '../../database/GiveawayTable';
+import type { Giveaway } from '../../database';
 
 export default class CreateEvent extends Event {
 

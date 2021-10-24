@@ -4,8 +4,8 @@ import {
   MessageComponentInteraction, Client, Snowflake 
 } from 'discord.js';
 
-import type { Giveaway } from '../database/GiveawayTable';
-import type { Guild } from '../database/GuildTable';
+import type { Giveaway } from '../database';
+import type { Guild } from '../database';
 
 export function generateGiveawayEmbed(giveaway: Giveaway): MessageEmbed {
   return new MessageEmbed({

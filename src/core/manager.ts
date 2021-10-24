@@ -13,7 +13,7 @@ import type { WebhookMessageOptions, Message } from 'discord.js';
 import type { APIMessage } from 'discord-api-types/v9';
 
 import type Bot from '../client';
-import type { Guild as GuildRow } from '../database/GuildTable';
+import type { Guild as GuildRow } from '../database';
 
 export default class GiveawayManager extends EventEmitter {
   readonly bot: Bot;

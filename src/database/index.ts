@@ -1,6 +1,19 @@
 import { Pool } from 'pg';
 
-import { KeyTable, GuildTable, GiveawayTable, EntryTable } from './tables';
+import {
+  KeyTable, Key,
+  GuildTable, Guild,
+  GiveawayTable, Giveaway,
+  EntryTable, Entry
+} from './tables';
+
+// Re-export it
+export {
+  KeyTable, Key,
+  GuildTable, Guild,
+  GiveawayTable, Giveaway,
+  EntryTable, Entry
+};
 
 /**
  * Our PostgreSQL database

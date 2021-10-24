@@ -2,7 +2,7 @@ import Command from ".";
 
 import type { PermissionString, CommandInteraction } from "discord.js";
 
-import type { Key } from '../database/KeyTable';
+import type { Key } from '../database';
 
 export default class DonateCommand extends Command {
   name = 'donate';

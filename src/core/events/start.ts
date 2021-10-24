@@ -2,7 +2,7 @@ import * as constants from '../constants';
 import * as utils from '../utils';
 import Event from '.';
 
-import type { Giveaway } from '../../database/GiveawayTable';
+import type { Giveaway } from '../../database';
 
 export default class CreateEvent extends Event {
 

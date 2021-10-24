@@ -6,8 +6,8 @@ import Event from '.';
 
 import type { PoolClient } from 'pg';
 
-import type { Entry } from '../../database/EntryTable';
-import type { Giveaway } from '../../database/GiveawayTable';
+import type { Entry } from '../../database';
+import type { Giveaway } from '../../database';
 
 export default class PickWinnerEvent extends Event {
 
