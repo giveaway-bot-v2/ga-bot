@@ -1,0 +1,8 @@
+# Exclude everything so that we don't accidentally add something unintended
+*
+
+# Now add exceptions for what we actually need
+!src
+!package-lock.json
+!package.json
+!tsconfig.json

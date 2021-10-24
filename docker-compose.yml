@@ -1,0 +1,24 @@
+services:
+  postgres:
+    # The volumes for Postgres are created at the image level so we don't
+    # need to define any here
+    image: postgres:14
+    environment:
+      POSTGRES_DB: gabot
+      POSTGRES_USER: gabot
+      POSTGRES_PASSWORD: gabot
+      POSTGRES_PORT: localhost
+
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+    environment:
+      PGHOST: postgres  # Name of the service above
+      PGDATABASE: gabot
+      PGUSER: gabot
+      PGPASSWORD: gabot
+    env_file:
+      - .env

@@ -6,11 +6,11 @@
   "scripts": {
     "lint": "eslint 'src/**/*.{js,ts,tsx}'",
     "build": "npx tsc",
-    "start": "npm run build && node build/"
+    "start": "node build/",
+    "run": "npm run build && npm run start"
   },
   "dependencies": {
     "discord.js": "^13.0.0",
-    "dotenv": "^9.0.0",
     "node-fetch": "2.6.1",
     "pg": "^8.6.0",
     "pg-cursor": "^2.7.1",

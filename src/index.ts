@@ -1,6 +1,3 @@
-import { config } from 'dotenv';
-config();
-
 import Bot from './client';
 
 (async function() {
