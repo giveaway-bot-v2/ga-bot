@@ -46,19 +46,20 @@ export default class RepCommand extends Command {
         return false;
       }
 
+      /*
       await conn.query({
         name: 'RepCommand_giveReputationPoint',
         text: `
-          WITH (
-            SELECT id, key FROM giveaways WHERE winner = $1 ORDER BY timestamp DESC;
-          ) AS last_giveaway;
-          UPDATE giveaways SET rep_given = TRUE WHERE id = last_giveaway.id;
+          UPDATE giveaways SET rep_given = TRUE WHERE id = $1.id;
           UPDATE users SET reputation = reputation + $2 WHERE user_id = (
-            SELECT donor_id FROM keys WHERE id = last_giveaway.key;
-          ) RETURNING *;
+            SELECT donor_id FROM keys WHERE id = $1.key;
+          );
         `,
-        values: [interaction.user.id, increment]
+        values: [lastGiveaway, increment]
       });
+      */
+
+      await interaction.client.db.reputation.append(lastKey.donor_id, increment);
 
       await conn.query('COMMIT;');
       return true;
