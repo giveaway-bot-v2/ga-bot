@@ -21,6 +21,11 @@ export default class RepCommand extends Command {
   ];
 
   async give(interaction: CommandInteraction, increment: number): Promise<void> {
+  /**
+   * Helper method to give a reputation point to the user.
+   * @param interaction The interaction to use.
+   * @param increment How much to increment the reputation.
+   */
     const conn = await interaction.client.db.connect();
     conn.query('BEGIN;');
 
