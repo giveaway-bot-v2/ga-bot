@@ -1,11 +1,11 @@
 import Command from ".";
 
 import { PermissionString, CommandInteraction, MessageEmbed } from "discord.js";
-import type { Key } from "../database/KeyTable";
+import type { Key } from "../database";
 
 export default class KeyCommand extends Command {
   name = 'library';
-  description = 'Show your previously won keys'; 
+  description = 'Show your previously won keys';
   permissions: Array<PermissionString> = ['SEND_MESSAGES'];
   DMOnly = true;
 
