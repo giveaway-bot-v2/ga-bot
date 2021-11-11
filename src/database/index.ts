@@ -8,6 +8,7 @@ import {
   GuildTable, Guild,
   GiveawayTable, Giveaway,
   EntryTable, Entry,
+  ReputationLog,
   UserTable, User,
 } from './tables';
 
@@ -17,6 +18,7 @@ export {
   GuildTable, Guild,
   GiveawayTable, Giveaway,
   EntryTable, Entry,
+  ReputationLog,
   UserTable, User,
 };
 
@@ -30,6 +32,7 @@ export default class Database extends Pool {
   guilds: GuildTable;
   giveaways: GiveawayTable;
   entries: EntryTable;
+  reputation: ReputationLog;
   users: UserTable;
 
   constructor() {
@@ -39,6 +42,7 @@ export default class Database extends Pool {
     this.guilds = new GuildTable(this);
     this.giveaways = new GiveawayTable(this);
     this.entries = new EntryTable(this);
+    this.reputation = new ReputationLog(this);
     this.users = new UserTable(this);
   }
 
