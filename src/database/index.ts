@@ -93,10 +93,10 @@ export default class Database extends Pool {
           name: 'Database_migrate',
           text: "UPDATE metadata SET value = $1 WHERE key = 'migration';",
           values: [
-            JSON.stringify({
+            {
               'id': parseInt(migration.name.slice(0, 4)),
               'timestamp': new Date()
-            })
+            }
           ],
         });
 
