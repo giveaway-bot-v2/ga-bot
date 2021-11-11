@@ -48,6 +48,7 @@ class CommandManager extends Collection<string, Command> {
 
 export default class Bot extends Client {
   db: Database;
+  migration: Promise<void>;
   commands: CommandManager;
   giveawayer: GiveawayManager;
 
@@ -60,12 +61,13 @@ export default class Bot extends Client {
     });
 
     this.db = new Database();
-    this.db.migrate();
+    this.migration = this.db.migrate();
     this.commands = new CommandManager('./commands');
     this.giveawayer = new GiveawayManager(this);
 
     // Register events
     this.on('ready', async () => {
+      await this.migration;  // Wait for the migration to finish
       await this.application?.fetch();
       console.log('GiveawayBot started..');
     })

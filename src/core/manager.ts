@@ -72,6 +72,7 @@ export default class GiveawayManager extends EventEmitter {
    * Run the main giveaway loop, this function is never meant to return
    */
   async run(): Promise<never> {
+    await this.bot.migration;
     await this.recover();  // Attempt to recover the last running giveaway
 
     while (true) {
