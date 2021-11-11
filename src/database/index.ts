@@ -58,7 +58,7 @@ export default class Database extends Pool {
 
     console.log(`Migrating database from ID ${start}`);
 
-    const resolved = path.resolve(__dirname, './tables');
+    const resolved = path.resolve(__dirname, './migrations');
   
     const files = await fs.readdir(resolved, { withFileTypes: true });
 
