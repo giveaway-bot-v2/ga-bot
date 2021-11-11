@@ -91,8 +91,9 @@ export default class Database extends Pool {
         // Update the metadata since we've done this migration
         await conn.query({
           name: 'Database_migrate',
-          text: "UPDATE metadata SET value = $1 WHERE key = 'migration';",
+          text: "INSERT INTO metadata (key, value) VALUES($1, $2) ON CONFLICT (key) DO UPDATE SET value = $2;",
           values: [
+            'migration',
             {
               'id': parseInt(migration.name.slice(0, 4)),
               'timestamp': new Date()
