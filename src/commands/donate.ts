@@ -31,7 +31,7 @@ export default class DonateCommand extends Command {
 
     const keys: Array<Key> = [];
     for (const keyArg of (interaction.options.get('keys')?.value as string).split(' ')) {
-      keys.push(await interaction.client.db.keys.new(keyArg, msg, conn));
+      keys.push(await interaction.client.db.keys.new(keyArg, interaction.user.id, msg, conn));
     }
 
     await interaction.reply(

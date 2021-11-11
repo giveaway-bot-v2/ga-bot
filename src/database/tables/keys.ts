@@ -1,9 +1,11 @@
 import Table from './base';
 
+import type { Snowflake } from 'discord.js';
 import type { PoolClient } from 'pg';
 
 export interface Key {
   id: number;
+  donator: Snowflake;
   value: string;
   message: string;
   claimed: boolean;
@@ -15,15 +17,16 @@ export interface Key {
 export default class KeyTable extends Table {
   /**
    * Create and return a new key
+   * @param donator The user who donated the key.
    * @param value The value of the key
    * @param connection The connection to use, defaults to a new connection from the pool
    * @returns The new key inserted into the table
    */
-  async new(value: string, message?: string | null, connection?: PoolClient): Promise<Key> {
+  async new(donator: Snowflake, value: string, message?: string | null, connection?: PoolClient): Promise<Key> {
     const res = await (connection || this.database).query({
       name: 'KeyTable_new',
-      text:'INSERT INTO keys (value, message) VALUES ($1, $2) RETURNING *;',
-      values: [value, message],
+      text:'INSERT INTO keys (donator, value, message) VALUES ($1, $2, $3) RETURNING *;',
+      values: [donator, value, message],
     });
     return res.rows[0] as Key;
   }
