@@ -47,7 +47,10 @@ export default class Database extends Pool {
     // This can fail if this is the first time the database is initialized
     let start = -1;
     try {
-      const res = await conn.query(`SELECT value FROM metadata WHERE key = 'migration';`);
+      const res = await conn.query({
+        text: 'SELECT value FROM metadata WHERE key = $1;',
+        values: ['migration']
+      });
       if (res.rows.length >= 0) {
         const data = JSON.parse(res.rows[0]);
         start = data.id;
