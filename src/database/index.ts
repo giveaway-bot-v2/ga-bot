@@ -7,7 +7,8 @@ import {
   KeyTable, Key,
   GuildTable, Guild,
   GiveawayTable, Giveaway,
-  EntryTable, Entry
+  EntryTable, Entry,
+  UserTable, User,
 } from './tables';
 
 // Re-export it
@@ -15,7 +16,8 @@ export {
   KeyTable, Key,
   GuildTable, Guild,
   GiveawayTable, Giveaway,
-  EntryTable, Entry
+  EntryTable, Entry,
+  UserTable, User,
 };
 
 type Migration = (conn: PoolClient) => Promise<void>;
@@ -28,6 +30,7 @@ export default class Database extends Pool {
   guilds: GuildTable;
   giveaways: GiveawayTable;
   entries: EntryTable;
+  users: UserTable;
 
   constructor() {
     super();
@@ -36,6 +39,7 @@ export default class Database extends Pool {
     this.guilds = new GuildTable(this);
     this.giveaways = new GiveawayTable(this);
     this.entries = new EntryTable(this);
+    this.users = new UserTable(this);
   }
 
   /**
