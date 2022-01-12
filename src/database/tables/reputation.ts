@@ -36,4 +36,19 @@ export default class ReputationTable extends Table {
     });
     return res.rows[0];
   }
+
+  /**
+   * Get a boolean indicating whether the user has been given reputation point
+   * by another user for a working game key.
+   * @param user The user to check for.
+   * @returns Whether a reputation point has already been given.
+   */
+  async getGiven(user: Snowflake | User, connection?: PoolClient): Promise<boolean> {
+    const res = await (connection || this.database).query({
+      name: 'ReputationTable_getGiven',
+      text: 'SELECT EXISTS(SELECT 1 FROM reputation_log WHERE user_id = $1 AND data->);',
+      values: [typeof user === 'string' ? user : user.id],
+    });
+    return res.rows[0].exists;
+  }
 }
